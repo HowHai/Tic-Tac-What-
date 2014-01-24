@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html x-ng-app="TicTacWhat">
+	<head>
+		<title>TIC TAC WHAT???</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js">
+		</script>
+		<script src="https://cdn.firebase.com/v0/firebase.js"></script>
+		<script src="https://cdn.firebase.com/libs/angularfire/0.6.0/angularfire.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="main.css">
+		<script type="text/javascript" src="main.js"></script>
+	</head>
+	<body x-ng-controller="gameBoardCtrl">
+		<!-- <div id="gameBoard" x-ng-controller="gameBoardCtrl"> -->
+		<div id="statusBox">{{obj.statusBox}}</div>
+		<div id="clouds" x-ng-controller="gameBoardCtrl">
+			<div id="play" x-ng-click="startGame()">Play</div>
+			<br />
+				<div id="player1">
+					<h2>Player 1</h2>
+				</div>
+				<div id="player2">
+					<h2>Player 2</h2>
+				</div>
+					<!-- copied -->
+				<div class="cloud x1"></div>
+				<!-- Time for multiple clouds to dance around -->
+				<div class="cloud x2"></div>
+				<div class="cloud x3"></div>
+				<div class="cloud x4"></div>
+				<div class="cloud x5"></div>
+				<div class="cloud x6"></div>
+				<div class="cloud x7"></div>
+				<!-- end copied -->
+			<div id="innerBoard">
+				<div x-ng-style="{background: generateColor(cell)}" x-ng-repeat="cell in obj.board track by $index" x-ng-click="attackCell($index)" x-ng-class="{clear: ($index % 3 == 0), diamond: true}">
+				{{cell}}
+				</div>
+			</div>
+		</div>
+
+		<div id="newBoard"></div>
+	</body>
+</html>
