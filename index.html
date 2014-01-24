@@ -16,11 +16,12 @@
 		<div id="clouds" x-ng-controller="gameBoardCtrl">
 			<div id="play" x-ng-click="startGame()">Play</div>
 			<br />
-				<div id="player1">
-					<h2>Player 1</h2>
+				<div id="player1" class="unknownPlayer">
+				<!-- Different player status based on seats availability -->
+					<h2>Sit Down</h2>
 				</div>
-				<div id="player2">
-					<h2>Player 2</h2>
+				<div id="player2" class="unknownPlayer">
+					<h2>Sit Down</h2>
 				</div>
 					<!-- copied -->
 				<div class="cloud x1"></div>
