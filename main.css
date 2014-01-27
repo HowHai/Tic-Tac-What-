@@ -5,10 +5,12 @@
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#edcc4e), to(#edcc4e),color-stop(0.9, #e84f28));
 }
 
+
+
 #player1 {
 	width: 130px;
 	height: 150px;
-	border: 1px solid black;
+	border: 3px solid black;
 	z-index: -1;
 	float: left;
 	margin-left: 20px;
@@ -17,7 +19,7 @@
 #player2 {
 	width: 130px;
 	height: 150px;
-	border: 1px solid black;
+	border: 3px solid black;
 	z-index: -1;
 	float: right;
 	margin-right: 20px;
@@ -31,6 +33,16 @@
 
 .unknownPlayer {
 	background: url("unknown_player.gif");
+	background-size: cover;
+}
+
+.seat1 {
+	background: url("seat1.png");
+	background-size: cover;
+}
+
+.seat2 {
+	background: url("seat2.png");
 	background-size: cover;
 }
 
@@ -52,6 +64,16 @@ h2 {
 	margin: -50px auto;
 }
 
+#countDown {
+	width: 150px;
+	height: 50px;
+	font-size: 50px;
+	color: blue;
+	clear: both;
+	margin: -50px auto;
+	text-align: center;
+}
+
 #innerBoard {
 	width: 440px;
 	height: 440px;
@@ -67,6 +89,7 @@ h2 {
 	width:100px;
 	height:100px;
 	border: 18px outset grey;
+	cursor: pointer;
 	/*border: 18px inset grey;*/
 	/*border-radius: 25px 25px 25px 25px;*/
 	/*-webkit-border-image: -webkit-gradient(linear, left top, left bottom, from(#00abeb), to(#fff), color-stop(0.5, #fff), color-stop(0.5, #66cc00)) 21 30 30 21 repeat repeat;*/

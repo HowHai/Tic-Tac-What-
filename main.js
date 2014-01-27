@@ -2,11 +2,9 @@ var app = angular.module('TicTacWhat', ["firebase"]);
 
 app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 {
-	// function gameBoardCtrl($scope, $timeout){
-	// $scope.gameBoard = ['red','blue','green','yellow','orange','purple','pink','white','black'];
-	// var originalBoard = $scope.gameBoard.slice(0);
 	$scope.gameBoard = ['A','B','C','D','E','F','G','H','I'];
-	var playerSymbol;
+	$scope.hidePlay = false;
+	var playerSymbol = "";
 	var newBoard = [];
 	var randomBoard = [];
 	var xTurn = true;
@@ -21,37 +19,110 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 	var ticTacRef;
 	var IDs;
 
+	// Generate a random board on page load
+	makeNewBoard(randomBoard);
+	generateBoard(randomBoard);
+	var originalBoard = randomBoard;
+
+	// Firebase init
 	ticTacRef = new Firebase("https://tictacwhat.firebaseio.com/");
 	$scope.fbRoot = $firebase(ticTacRef);
 
+	// TODO: refactor
 	$scope.fbRoot.$on("loaded", function() {
-		IDs = $scope.fbRoot.$getIndex();
-		if(IDs.length == 0)
-		{
-			// Build a board if none exist
-			$scope.fbRoot.$add( {
-				board: $scope.gameBoard,
-				player1: playerOne,
-				player2: playerTwo,
-				newBoardOnline: newBoard, // Don't need?
-				randomBoardOnline: randomBoard, // Change this name?
-				gameOver: false,
-				xTurn: true,
-				statusBox: "TIC TAC WHAT???"
-			});
-			$scope.fbRoot.$on("change", function() {
-				IDs = $scope.fbRoot.$getIndex();
-				$scope.obj = $scope.fbRoot.$child(IDs[0]);
-			})
-		}
-		else
-		{
-			$scope.obj = $scope.fbRoot.$child(IDs[0]);
-		}
+		$timeout(function() {
 
+			IDs = $scope.fbRoot.$getIndex();
+			if(IDs.length == 0)
+			{
+				// Build a board if none exist
+				$scope.fbRoot.$add( {
+					board: $scope.gameBoard,
+					player1: playerOne,
+					player2: playerTwo,
+					newBoardOnline: newBoard, // Don't need?
+					randomBoardOnline: randomBoard, // Change this name?
+					gameOver: false,
+					xTurn: true,
+					statusBox: "TIC TAC WHAT???",
+					seat1: {state: "Sit Down", taken: false},
+					seat2: {state: "Sit Down", taken: false},
+					counter: null,
+					gameFull: false
+				});
+
+				$scope.fbRoot.$on("change", function() {
+					IDs = $scope.fbRoot.$getIndex();
+					$scope.obj = $scope.fbRoot.$child(IDs[IDs.length -1]);
+				})
+			}
+			else
+				$scope.obj = $scope.fbRoot.$child(IDs[IDs.length -1]);
+
+			$timeout(function() {
+				if($scope.obj.gameFull)
+				{
+					$scope.fbRoot.$add( {
+						board: $scope.gameBoard,
+						player1: playerOne,
+						player2: playerTwo,
+						newBoardOnline: newBoard, // Don't need?
+						randomBoardOnline: randomBoard, // Change this name?
+						gameOver: false,
+						xTurn: true,
+						statusBox: "TIC TAC WHAT???",
+						seat1: {state: "Sit Down", taken: false},
+						seat2: {state: "Sit Down", taken: false},
+						counter: 10,
+						gameFull: false
+					});
+
+					$scope.fbRoot.$on("change", function() {
+						IDs = $scope.fbRoot.$getIndex();
+						$scope.obj = $scope.fbRoot.$child(IDs[IDs.length -1]);
+					})
+				}
+				else
+					$scope.obj = $scope.fbRoot.$child(IDs[IDs.length -1]);
+			}, 20)
+		}, 10);
 	});
 
-	// var testColor = "-webkit-gradient(linear, left top, left bottom, from(#e9ede8), to(#ce401c),color-stop(0.4, #8c1b0b))";
+	// Seat is taken when player click on "sit down"
+	// TODO: refactor
+	$scope.takeSeat = function(seat) {
+		if (seat == 1)
+		{
+			$scope.obj.seat1.taken = true;
+			$scope.obj.seat1.state = "Player 1";
+			$scope.avatar1 = true;
+		}
+		else if ( seat == 2)
+		{
+			$scope.obj.seat2.taken = true;
+			$scope.obj.seat2.state = "Player 2";
+			$scope.avatar2 = true;
+		}
+		if ($scope.obj.seat1.taken && $scope.obj.seat2.taken)
+		{
+			$scope.obj.gameFull = true;
+
+			// Start game when both seats are taken.
+			$scope.hidePlay = true;
+			$timeout(function(){
+				makeNewBoard(newBoard);
+				// generateBoard(newBoard);
+				$scope.obj.board = newBoard;
+				$scope.obj.$save();
+			}, 10000);
+
+			// When game starts, show countdown.
+			$scope.obj.counter = 10;
+			runCounter();
+		}
+
+		$scope.obj.$save();
+	}
 
 	function coolColor(color, color2, color3)
 	{
@@ -100,32 +171,20 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 		}
 	}
 
-	// Randomize gameBoard
-	$scope.startGame = function()
+	function runCounter()
 	{
-		$timeout(function(){
-			makeNewBoard(newBoard);
-			// generateBoard(newBoard);
-			$scope.obj.board = newBoard;
-			$scope.obj.$save();
-		}, 5000);
+		$scope.obj.counter -= 1;
+		if ( $scope.obj.counter > 0)
+			$timeout(runCounter, 1000);
 
-		// $timeout(function() {
-		// 	makeNewBoard(newBoard);
-		// 	generateBoard(newBoard);
-		// }, 3000);
+		if ($scope.obj.counter == 0)
+		{
+			$scope.obj.counter = "Start!";
+			$timeout(function() {
+				$scope.obj.counter = null;
+			}, 1500);
+		}
 	}
-
-	function setGameTimer()
-	{
-		makeNewBoard(newBoard);
-		generateBoard(newBoard);
-	}
-
-	// Generate a random board on page load
-	makeNewBoard(randomBoard);
-	generateBoard(randomBoard);
-	var originalBoard = randomBoard;
 
 	// Make function to assign gameBoard's elements to its respective index
 	function makeNewBoard(board) {
@@ -140,6 +199,16 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 			if (index > -1)
 				oldBoard.splice(index, 1);
 		}
+	}
+
+	// Make function to reassign board
+	function generateBoard(board)
+	{
+		for(var i = 0; i < board.length; i++)
+		{
+			var newChar = board[i];
+			$scope.gameBoard[i] = newChar;
+		};
 	}
 
 	// Check players' moves for win
@@ -159,15 +228,7 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 		}
 	}
 
-	// Make function to reassign board
-	function generateBoard(board)
-	{
-		for(var i = 0; i < board.length; i++)
-		{
-			var newChar = board[i];
-			$scope.gameBoard[i] = newChar;
-		};
-	}
+
 
 	// Function to assign element's original position to player's array
 	function originalPosition(player, oldCell)
@@ -180,16 +241,17 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 	{
 		if ($scope.obj.board.indexOf("X") == -1)
 			return true;
-		else if (playerSymbol == "X" && $scope.obj.xTurn)
+		else if ($scope.obj.board.indexOf("O") == -1 && playerSymbol != "X")
 			return true;
 		else
 			return false;
 	}
 
-	// FIXME: This will not prevent a third player from playing... I think.
 	function imHere()
 	{
-		if (playerSymbol != "X" && $scope.obj.xTurn == false)
+		if (playerSymbol == "X" && $scope.obj.xTurn)
+			return true;
+		else if (playerSymbol == "O" && $scope.obj.xTurn == false)
 			return true;
 	}
 
@@ -202,7 +264,6 @@ app.controller("gameBoardCtrl", function($scope, $timeout, $firebase)
 			var oldCell = $scope.obj.board[cell];
 			$scope.obj.board[cell] = $scope.obj.xTurn ? "X" : "O";
 			playerSymbol = $scope.obj.xTurn ? "X" : "O";
-			console.log(playerSymbol);
 			selectedCell = $scope.obj.board[cell];
 			$scope.obj.xTurn = !$scope.obj.xTurn;
 

@@ -14,14 +14,15 @@
 		<!-- <div id="gameBoard" x-ng-controller="gameBoardCtrl"> -->
 		<div id="statusBox">{{obj.statusBox}}</div>
 		<div id="clouds" x-ng-controller="gameBoardCtrl">
-			<div id="play" x-ng-click="startGame()">Play</div>
+			<!-- <div id="play" x-ng-click="startGame()" ng-hide="hidePlay">Play</div> -->
+			<div id="countDown">{{obj.counter}}</div>
 			<br />
-				<div id="player1" class="unknownPlayer">
+				<div id="player1" x-ng-class="{unknownPlayer: true, seat1: obj.seat1.taken}" x-ng-click="takeSeat(1)">
 				<!-- Different player status based on seats availability -->
-					<h2>Sit Down</h2>
+					<h2>{{obj.seat1.state}}</h2>
 				</div>
-				<div id="player2" class="unknownPlayer">
-					<h2>Sit Down</h2>
+				<div id="player2" x-ng-class="{unknownPlayer: true, seat2: obj.seat2.taken}" x-ng-click="takeSeat(2)">
+					<h2>{{obj.seat2.state}}</h2>
 				</div>
 					<!-- copied -->
 				<div class="cloud x1"></div>
